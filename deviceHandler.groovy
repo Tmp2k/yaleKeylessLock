@@ -10,7 +10,7 @@
  *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
  *  for the specific language governing permissions and limitations under the License.
  *
- *  https://github.com/TmpR/yaleKeylessLock
+ *   https://github.com/TmpR/yaleKeylessLock
  *
  */
 metadata {
@@ -66,6 +66,10 @@ metadata {
 import physicalgraph.zwave.commands.doorlockv1.*
 import physicalgraph.zwave.commands.usercodev1.*
 
+private getCommandClassVersions() {
+	[0x62: 1, 0x71: 2, 0x80: 1, 0x85: 2, 0x63: 1, 0x98: 1, 0x86: 1]
+}
+
 def updated() {
 	try {
 		if (!state.init) {
@@ -94,7 +98,7 @@ def parse(String description) {
 	} else if (description == "updated") {
 		return null
 	} else {
-		def cmd = zwave.parse(description, [ 0x98: 1, 0x72: 2, 0x85: 2, 0x86: 1 ])
+    	def cmd = zwave.parse(description, commandClassVersions)
 		if (cmd) {
 			result = zwaveEvent(cmd)
 		}
@@ -103,9 +107,10 @@ def parse(String description) {
 	result
 }
 
+
 def zwaveEvent(physicalgraph.zwave.commands.securityv1.SecurityMessageEncapsulation cmd) {
-	def encapsulatedCommand = cmd.encapsulatedCommand([0x62: 1, 0x71: 2, 0x80: 1, 0x85: 2, 0x63: 1, 0x98: 1, 0x86: 1])
-	// log.debug "encapsulated: $encapsulatedCommand"
+	def encapsulatedCommand = cmd.encapsulatedCommand(commandClassVersions)
+    	//log.debug "encapsulated: $encapsulatedCommand"
 	if (encapsulatedCommand) {
 		zwaveEvent(encapsulatedCommand)
 	}
